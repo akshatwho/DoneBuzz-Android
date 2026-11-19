@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The iOS icon art, inset so the whole square sits inside the adaptive icon's safe zone. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/cat_icon_art"
+    android:inset="18dp" />

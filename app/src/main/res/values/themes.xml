@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DoneBuzz" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/sky</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- Android 12+ splash: the cat icon on the sky, then the app's own animated intro takes over. -->
+    <style name="Theme.DoneBuzz.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/sky</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.DoneBuzz</item>
+    </style>
+</resources>
