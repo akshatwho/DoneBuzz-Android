@@ -1,7 +1,6 @@
 package com.adhd.donebuzz.ui
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -28,14 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import com.adhd.donebuzz.i18n.LocalStrings
 import com.adhd.donebuzz.logic.StreakInfo
-import kotlin.random.Random
 
 /** The sky, rolling hills and clouds behind every screen. */
 @Composable
@@ -141,46 +138,3 @@ fun StreakBanner(info: StreakInfo) {
         }
     }
 }
-
-/** Confetti raining from the top of the screen, played once per [bursts] bump. */
-@Composable
-fun Confetti(bursts: Int, modifier: Modifier = Modifier) {
-    val reduceMotion = rememberReduceMotion()
-    val progress = remember { Animatable(1f) }
-    val pieces = remember(bursts) {
-        val random = Random(bursts)
-        val colors = listOf(Palette.gold, Palette.grass, Color(0xFFE5577A), Color(0xFF3D7BFF), Palette.sky, Color(0xFFF08A24))
-        List(70) {
-            Piece(
-                x = random.nextFloat(),
-                drift = random.nextFloat() * 0.3f - 0.15f,
-                speed = 0.7f + random.nextFloat() * 0.6f,
-                delay = random.nextFloat() * 0.25f,
-                spin = random.nextFloat() * 720f - 360f,
-                color = colors[random.nextInt(colors.size)],
-            )
-        }
-    }
-    LaunchedEffect(bursts) {
-        if (bursts > 0 && !reduceMotion) {
-            progress.snapTo(0f)
-            progress.animateTo(1f, tween(1900, easing = LinearEasing))
-        }
-    }
-    if (progress.value >= 1f) return
-    Canvas(modifier.fillMaxSize()) {
-        val p = progress.value
-        for (piece in pieces) {
-            val local = ((p - piece.delay) / (1 - piece.delay)).coerceIn(0f, 1f)
-            if (local <= 0f) continue
-            val y = -20f + local * piece.speed * size.height * 1.1f
-            val x = (piece.x + piece.drift * local) * size.width
-            val alpha = if (local > 0.8f) (1 - local) / 0.2f else 1f
-            rotate(piece.spin * local, Offset(x, y)) {
-                drawRect(piece.color.copy(alpha = alpha), Offset(x - 5f, y - 8f), Size(10.dp.toPx() / 1.6f, 16.dp.toPx() / 1.6f))
-            }
-        }
-    }
-}
-
-private data class Piece(val x: Float, val drift: Float, val speed: Float, val delay: Float, val spin: Float, val color: Color)

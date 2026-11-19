@@ -84,7 +84,6 @@ fun TodayScreen(
     feedback: Feedback,
     onSettings: () -> Unit,
     onEdit: (Todo) -> Unit,
-    onCelebrate: () -> Unit,
     contentPadding: PaddingValues,
 ) {
     val s = LocalStrings.current
@@ -181,7 +180,6 @@ fun TodayScreen(
                                 if (!todo.isDone) {
                                     hops++
                                     feedback.taskCompleted()
-                                    onCelebrate()
                                 } else {
                                     feedback.tick()
                                 }

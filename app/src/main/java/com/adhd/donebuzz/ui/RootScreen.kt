@@ -89,7 +89,6 @@ fun RootScreen(addRequests: Int) {
     var editing by remember { mutableStateOf<Todo?>(null) }
     var showSettings by remember { mutableStateOf(false) }
     var showWhatsNew by remember { mutableStateOf(false) }
-    var confetti by remember { mutableIntStateOf(0) }
 
     // The widget's + opens the add sheet.
     LaunchedEffect(addRequests) {
@@ -127,7 +126,6 @@ fun RootScreen(addRequests: Int) {
                         feedback = feedback,
                         onSettings = { showSettings = true },
                         onEdit = { editing = it },
-                        onCelebrate = { confetti++ },
                         contentPadding = contentPadding,
                     )
                     else -> HistoryScreen(contentPadding)
@@ -138,7 +136,6 @@ fun RootScreen(addRequests: Int) {
                 onAdd = { adding = true },
                 modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = 20.dp).padding(bottom = 10.dp),
             )
-            Confetti(confetti)
         }
 
         if (adding) {

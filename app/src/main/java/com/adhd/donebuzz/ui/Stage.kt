@@ -21,6 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -144,9 +147,9 @@ fun Stage(done: Int, total: Int, position: Float, hops: Int, modifier: Modifier 
                     },
             )
             // Crouch, jump, hang at the top, land with a squash, settle.
-            PixelSprite(
-                Sprite.cat,
-                Modifier
+            WaggingCat(
+                animated = !reduceMotion,
+                modifier = Modifier
                     .size(sprite)
                     .graphicsLayer {
                         transformOrigin = TransformOrigin(0.5f, 1f)
@@ -170,4 +173,29 @@ fun CheckeredFlag(modifier: Modifier = Modifier) {
             drawRect(if ((row + column) % 2 == 0) Palette.ink else Color.White, Offset(column * w, row * h), Size(w, h))
         }
     }
+}
+
+/** One pixel-art frame per tick of the idle animation. */
+const val CAT_TICK_MS = 150L
+
+/** The cat's pose for a given tick: two quick wags, a rest, and an occasional blink. */
+fun catPose(tick: Int): Pair<Tail, Boolean> {
+    val wag = listOf(Tail.LEFT, Tail.MIDDLE, Tail.RIGHT, Tail.MIDDLE, Tail.LEFT, Tail.MIDDLE, Tail.RIGHT, Tail.MIDDLE)
+    val step = tick % 20
+    return (wag.getOrNull(step) ?: Tail.MIDDLE) to (tick % 31 == 14)
+}
+
+/** The cat, idly wagging its tail in little bursts and blinking now and then. */
+@Composable
+fun WaggingCat(animated: Boolean, modifier: Modifier = Modifier) {
+    var tick by remember { mutableIntStateOf(0) }
+    if (animated) {
+        LaunchedEffect(Unit) {
+            while (true) {
+                delay(CAT_TICK_MS)
+                tick++
+            }
+        }
+    }
+    PixelSprite(Sprite.catPoses.getValue(catPose(tick)), modifier)
 }

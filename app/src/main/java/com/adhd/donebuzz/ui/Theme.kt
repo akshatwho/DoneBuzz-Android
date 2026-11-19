@@ -85,6 +85,9 @@ fun rememberReduceMotion(): Boolean {
 
 // MARK: Pixel art
 
+/** Where the cat's tail is pointing; cycling left, middle, right, middle makes it wag. */
+enum class Tail { LEFT, MIDDLE, RIGHT }
+
 /** A sprite drawn from a grid of coloured rectangles, so pixel art stays crisp at any size. */
 class Sprite(val columns: Int, val rows: Int, val blocks: List<Block>) {
     data class Block(val x: Int, val y: Int, val w: Int, val h: Int, val color: Color)
@@ -107,33 +110,63 @@ class Sprite(val columns: Int, val rows: Int, val blocks: List<Block>) {
     companion object {
         private fun b(x: Int, y: Int, w: Int, h: Int, c: Color) = Block(x, y, w, h, c)
 
-        /** The hero: a little orange cat in a blue scarf. */
-        val cat: Sprite = run {
-            val fur = Color(0xFFF08A24)
-            val stripe = Color(0xFFC9661A)
-            val innerEar = Color(0xFFFFC9A3)
-            val cream = Color(0xFFFFF1DE)
-            val nose = Color(0xFFE5577A)
-            val scarf = Color(0xFF3D7BFF)
-            val eye = Palette.ink
-            Sprite(
-                12, 12,
-                listOf(
-                    b(2, 1, 2, 2, fur), b(8, 1, 2, 2, fur),
-                    b(3, 2, 1, 1, innerEar), b(8, 2, 1, 1, innerEar),
-                    b(2, 3, 8, 5, fur), b(1, 4, 10, 3, fur),
-                    b(5, 3, 2, 1, stripe),
-                    b(3, 5, 1, 2, eye), b(8, 5, 1, 2, eye),
-                    b(5, 6, 2, 1, nose),
-                    b(4, 7, 4, 1, cream),
-                    b(10, 8, 1, 1, fur),
-                    b(2, 8, 8, 1, scarf),
-                    b(3, 9, 6, 2, fur), b(5, 9, 2, 2, cream),
-                    b(9, 9, 2, 1, fur),
-                    b(3, 11, 2, 1, stripe), b(7, 11, 2, 1, stripe),
-                ),
-            )
+        /** Builds a sprite from rows of characters, one cell per character; unknown characters are see-through. */
+        fun fromArt(art: List<String>, palette: Map<Char, Color>): Sprite {
+            val blocks = art.flatMapIndexed { y, row ->
+                row.mapIndexedNotNull { x, c -> palette[c]?.let { b(x, y, 1, 1, it) } }
+            }
+            return Sprite(art.maxOf { it.length }, art.size, blocks)
         }
+
+        private val catPalette = mapOf(
+            'O' to Color(0xFFF08A24), // fur
+            'S' to Color(0xFFC9661A), // stripes, paws and tail tip
+            'P' to Color(0xFFFFB3C1), // inner ears
+            'C' to Color(0xFFFFF1DE), // muzzle and belly
+            'N' to Color(0xFFE5577A), // nose
+            'R' to Color(0xFFFF9FB0), // cheeks
+            'B' to Color(0xFF3D7BFF), // scarf
+            'K' to Palette.ink, // eyes
+            'W' to Color.White, // eye sparkle
+        )
+
+        private val catArt = listOf(
+            ".............",
+            ".O......O....",
+            ".OO....OO....",
+            ".OPOSSOPO....",
+            "OOOOSSOOOO...",
+            "OOOOOOOOOO...",
+            "OKWOOOOKWO...",
+            "OKKONNOKKO...",
+            "ORROCCORRO...",
+            ".OOOOOOOO....",
+            "..BBBBBB.....",
+            "..OCCCCO.....",
+            "..SS..SS.....",
+        )
+
+        /** Tail cells for each pose, from the base at the cat's hip out to the darker tip. */
+        private val tails = mapOf(
+            Tail.LEFT to listOf(8 to 11, 9 to 11, 10 to 10, 10 to 9, 11 to 8, 11 to 7),
+            Tail.MIDDLE to listOf(8 to 11, 9 to 11, 10 to 10, 11 to 9, 11 to 8, 12 to 7),
+            Tail.RIGHT to listOf(8 to 11, 9 to 11, 10 to 11, 11 to 10, 12 to 9, 12 to 8),
+        )
+
+        /** The hero: a little orange cat in a blue scarf, with big sparkly eyes and pink cheeks. */
+        fun cat(tail: Tail = Tail.MIDDLE, blinking: Boolean = false): Sprite {
+            val art = catArt.map { it.toCharArray() }.toMutableList()
+            if (blinking) art[6] = "OOOOOOOOOO...".toCharArray()
+            val cells = tails.getValue(tail)
+            cells.forEachIndexed { i, (x, y) -> art[y][x] = if (i == cells.lastIndex) 'S' else 'O' }
+            return fromArt(art.map { String(it) }, catPalette)
+        }
+
+        val cat: Sprite = cat()
+
+        /** All the cat's poses, built once so animating it allocates nothing. */
+        val catPoses: Map<Pair<Tail, Boolean>, Sprite> =
+            Tail.entries.flatMap { t -> listOf(false, true).map { (t to it) to cat(t, it) } }.toMap()
 
         val coin: Sprite = run {
             val rim = Color(0xFFA66F00)

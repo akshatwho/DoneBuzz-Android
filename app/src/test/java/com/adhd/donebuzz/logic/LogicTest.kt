@@ -160,3 +160,16 @@ class StringsTest {
         assertEquals("还剩 2 件，冲！", zh.widgetLine(WidgetMood.Going(2)))
     }
 }
+
+class CatPoseTest {
+    @Test fun wagsThenRests() {
+        val tails = (0 until 20).map { com.adhd.donebuzz.ui.catPose(it).first }
+        assertEquals(com.adhd.donebuzz.ui.Tail.LEFT, tails[0])
+        assertEquals(com.adhd.donebuzz.ui.Tail.RIGHT, tails[2])
+        assertTrue(tails.drop(8).all { it == com.adhd.donebuzz.ui.Tail.MIDDLE })
+    }
+
+    @Test fun blinksOncePerCycle() {
+        assertEquals(1, (0 until 31).count { com.adhd.donebuzz.ui.catPose(it).second })
+    }
+}
