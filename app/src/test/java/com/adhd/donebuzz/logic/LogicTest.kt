@@ -152,7 +152,8 @@ class StringsTest {
     @Test fun systemLanguageResolves() {
         assertEquals(AppLanguage.CHINESE, AppLanguage.SYSTEM.resolved("zh"))
         assertEquals(AppLanguage.ENGLISH, AppLanguage.SYSTEM.resolved("fr"))
-        assertEquals(AppLanguage.CHINESE, AppLanguage.from("bogus"))
+        assertEquals(AppLanguage.SYSTEM, AppLanguage.from("bogus"))
+        assertEquals(AppLanguage.SYSTEM, AppLanguage.from(null))
     }
 
     @Test fun widgetLines() {

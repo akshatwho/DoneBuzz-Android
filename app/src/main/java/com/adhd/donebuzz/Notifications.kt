@@ -25,7 +25,7 @@ object Notifications {
     /** Channel names follow the app's language; re-creating a channel only renames it. */
     fun createChannels(context: Context) {
         val strings = runCatching { runBlocking { context.app.settingsStore.current().strings } }
-            .getOrElse { Strings(AppLanguage.CHINESE) }
+            .getOrElse { Strings(AppLanguage.SYSTEM) }
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannels(
             listOf(

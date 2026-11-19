@@ -16,7 +16,7 @@ enum class AppLanguage(val code: String) {
         if (this != SYSTEM) this else if (deviceLanguage.startsWith("zh")) CHINESE else ENGLISH
 
     companion object {
-        fun from(code: String?) = entries.firstOrNull { it.code == code } ?: CHINESE
+        fun from(code: String?) = entries.firstOrNull { it.code == code } ?: SYSTEM
     }
 }
 

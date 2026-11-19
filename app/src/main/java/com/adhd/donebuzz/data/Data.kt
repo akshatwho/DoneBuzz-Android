@@ -95,7 +95,7 @@ object Days {
 private val Context.settingsStore by preferencesDataStore(name = "settings")
 
 data class AppSettings(
-    val language: AppLanguage = AppLanguage.CHINESE,
+    val language: AppLanguage = AppLanguage.SYSTEM,
     val reminderEnabled: Boolean = false,
     val reminderMinutes: Int = ReminderTime.DEFAULT_MINUTES,
     val whatsNewSeenRelease: Int = 0,
